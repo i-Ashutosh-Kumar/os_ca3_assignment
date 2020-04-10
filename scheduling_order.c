@@ -1,290 +1,87 @@
-//The following processes are being scheduled using a preemptive, round robin scheduling
-//algorithm. Each process is assigned a numerical priority, with a higher number indicating
-//a higher relative priority. In addition to the processes listed below, the system also has an
-//idle task (which consumes no CPU resources and is identified as P_idle ). This task has
-//priority 0 and is scheduled whenever the system has no other available processes to run.
-//The length of a time quantum is 10 units. If a process is preempted by a higher-priority
-//process, the preempted process is placed at the end of the queue.
-//Thread Priority Burst Arrival
-//P1 40 20 0
-//P2 30 25 25
-//P3 30 25 30
-//P4 35 15 60
-//P5 5 10 100
-//P6 10 10 105
-//Write a C code to
-//a. Show the scheduling order of the processes using a Gantt chart.
-//b. What is the turnaround time for each process?
-//c. What is the waiting time for each process?
-//d. What is the CPU utilization rate?
-//----------------------------------------------------------------------------------------------------------------------------------
-
 #include<stdio.h>
-#include <conio.h>
-#include <string.h>
-#include <bits/stdc++.h>
-using namespace std;
-
-struct Process_Data
-{
-	int Num;
-	int Pid;  //Process Id
-	int A_time; //Process Arrival Time
-	int B_time; //Process Burst Time
-	int Priority; //Process Priority
-	int F_time; //Process Finish Time
-	int R_time; //Process Remaining  Time During Execution
-	int W_time; //Waiting Time
-	int S_time; //Process start Time
-	int Res_time;
-
-};
-
-struct Process_Data current;
-typedef struct Process_Data P_d ;
-
-bool idsort(const P_d& x , const P_d& y)
-{
-	return x.Pid < y.Pid;
-}
-/** Sorting on the base of arrival time if that match then on Priority of Priority also  match than on the base of Process Id**/
-bool arrivalsort( const P_d& x ,const P_d& y)
-{
-	if(x.A_time < y.A_time)
-		return true;
-	else if(x.A_time > y.A_time)
-		return false;
-	if(x.Priority < y.Priority)
-		return true;
-	else if(x.Priority > y.Priority)
-		return false;
-	if(x.Pid < y.Pid)
-		return true;
-
-	return false;
-}
-
-
-bool Numsort( const P_d& x ,const P_d& y)
-{
-	return x.Num < y.Num;
-}
-/*Sorting on the base of Priority if that same then on the base of PID*/
-struct comPare
-{
-	bool operator()(const P_d& x ,const P_d& y)
-	{
-		if( x.Priority > y.Priority )
-			return true;
-		else if( x.Priority < y.Priority )
-			return false;
-		if( x.Pid > y.Pid )
-			return true;
-
-		return false;
-		
-	}
-	
-};
-
-/**To check the Input **/
-void my_check(vector<P_d> mv)
-{
-	for(unsigned int i= 0; i < mv.size() ;i++)
-	{
-		cout<<" Pid :"<<mv[i].Pid<<" _time : "<<mv[i].A_time<<" B_time : "<<mv[i].B_time<<" Priority : "<<mv[i].Priority<<endl;
-	}
-
-}
-
+#include<conio.h>
 int main()
-{
-	int i;
-	vector< P_d > input;
-	vector<P_d> input_copy;
-	P_d temp;
-	int pq_process = 0; // for PQ process
-	int rq_process = 0; // for RQ process
-	int A_time;
-	int B_time;
-	int Pid;
-	int Priority;
-	int n;
-	int clock;
-	int total_exection_time = 0;
-	cin>>n;
-	for( i= 0; i< n; i++ )
-	{
-		cin>>Pid>>A_time>>B_time>>Priority;
-		temp.Num = i+1;
-		temp.A_time = A_time;
-		temp.B_time = B_time;
-		temp.R_time = B_time;
-		temp.Pid = Pid;
-		temp.Priority = Priority;
-		input.push_back(temp);
-	}
-	input_copy = input;
-	sort( input.begin(), input.end(), arrivalsort );
-    //cout<<"arrivalsort : "<<endl;
-    //my_check( input ); // To check the sort unomment it
-    total_exection_time = total_exection_time + input[0].A_time;
-    for( i= 0 ;i< n; i++ )
+ {
+   int x,i;
+   int n;         //n is number of process
+   int P[10];   //P is process    
+   int P_P[10];   //P_P is process priority
+   int B_T[10];   //B_T is process burst time
+   int W_T[10];   //W_T is wait time
+   int T_A_T[10];   // T_A_T is turnaround time
+   int A_W_T;   //A_W_T is average waiting time
+   int A_TAT;   //A_TAT is average turnaround time
+   int A_T[10];   //A_T is arrival time
+   int T_Q;   //T_Q is time qunatum
+
+
+   printf("Enter the number of processes to be processed = ");
+   scanf("%d",&n);
+   printf("Time Quantum = ");
+   scanf("%d",&T_Q);
+   printf("\n\t---------- Enter BURST TIME | PRIORITY | ARRIVAL TIME----------  \n");
+ 
+   for(i=0;i<n;i++)
     {
-    	if( total_exection_time >= input[i].A_time )
-    	{
-    		total_exection_time = total_exection_time +input[i].B_time;
-    	}
-    	else
-    	{
-    		int diff = (input[i].A_time - total_exection_time);
-    		total_exection_time = total_exection_time + diff + B_time;
-
-    	}
+      printf("\n P%d = ",i+1);
+      scanf("%d %d %d",&B_T[i],&P_P[i],&A_T[i]);
+	  P[i]=i+1;
     }
+ 
+//priority based sorting
+int j;
+  for(i=0;i<n-1;i++)
+   {
+     for(j=i+1;j<n;j++)
+     {
+       if(P_P[i]<P_P[j])
+       {
+     x=P_P[i];
+     P_P[i]=P_P[j];
+     P_P[j]=x;
+     x=B_T[i];
+     B_T[i]=B_T[j];
+     B_T[j]=x;
+     x=P[i];
+     P[i]=P[j];
+     P[j]=x;
+      }
+   }
+}
+W_T[0]=0;
+A_W_T=0;
+T_A_T[0]=B_T[0];
+A_TAT=T_A_T[0];
+for(i=1;i<n;i++)
+ {
+ 	if(T_Q<n || T_Q>n) {
+	 
+   W_T[i]=T_A_T[i-1];
+   A_W_T+=W_T[i];
+   T_A_T[i]=W_T[i]+B_T[i];
+   A_TAT+=T_A_T[i];
+	 }
+ }
+ 
+ //code for Gantt Chart
+  
+ printf("\n");
+ printf("---------------GANTT CHART---------------\n");
+ for(i=0;i<n;i++)
+ {
+ 	printf("P %d ",P[i]);
+ }
+ 
+//Process displaying
+ 
+printf("\n\nProcess \t Burst Time \t Wait Time \t Turn Around Time   Priority \tArrival time \n");
+for(i=0;i<n;i++){
+printf("\n  %d",P[i]); printf("\t\t %d",B_T[i]); printf("\t\t %d",W_T[i]); printf("\t\t %d",T_A_T[i]); printf("\t\t %d",P_P[i]); printf("\t\t %d",A_T[i]);
 
-	int Ghant[total_exection_time]={0}; //Ghant Chart
-	for( i= 0; i< total_exection_time; i++ )
-	{
-		Ghant[i]=-1;
-	}
-	//cout<<"total_exection_time : "<<total_exection_time<<endl;
-
-	priority_queue < P_d ,vector<Process_Data> ,comPare> pq; //Priority Queue PQ
-
-	queue< P_d > rq; //Round Robin Queue RQ
-	int cpu_state = 0; //idle if 0 then Idle if 1 the Busy
-	int quantum = 4 ; //Time Quantum
-	current.Pid = -2;
-	current.Priority = 999999;
-
-	for ( clock = 0; clock< total_exection_time; clock++ )
-	{
-		/**Insert the process with same Arrival time in Priority Queue**/
-		for( int j = 0; j< n ; j++ )
-		{
-			if(clock == input[j].A_time)
-			{
-				pq.push(input[j]);
-			}
-		}
-		
-
-		if(cpu_state == 0) //If CPU idle
-		{
-			if(!pq.empty())
-			{
-				current = pq.top();
-				cpu_state = 1;
-				pq_process = 1;
-				pq.pop();
-				quantum = 4; 
-			}
-			else if(!rq.empty())
-			{
-				current = rq.front();
-				cpu_state = 1;
-				rq_process = 1;
-				rq.pop();
-				quantum = 4;
-			}
-		}
-		else if(cpu_state == 1) //If cpu has any procss
-		{
-			if(pq_process == 1 && (!pq.empty()))
-			{
-				if(pq.top().Priority < current.Priority ) //If new process has high priority
-				{
-					rq.push(current); //push current in RQ
-					current = pq.top();
-					pq.pop();
-					quantum = 4; 
-				}
-			}
-			else if(rq_process == 1 && (!pq.empty())) //If process is from RQ and new process come  in PQ
-			{
-				rq.push(current);
-				current = pq.top();
-				pq.pop();
-				rq_process = 0;
-				pq_process = 1;
-				quantum = 4 ;
-			}
-			
-
-		}
-
-
-		if(current.Pid != -2) // Process Execution
-		{
-			current.R_time--;
-			quantum--;
-			Ghant[clock] = current.Pid;
-			if(current.R_time == 0) //If process Finish
-			{
-				cpu_state = 0 ;
-				quantum = 4 ;
-				current.Pid = -2;
-				current.Priority = 999999;
-				rq_process = 0;
-				pq_process = 0;
-			}
-			else if(quantum == 0 ) //If time Qunatum of a current running process Finish
-			{
-				rq.push(current);
-				current.Pid = -2;
-				current.Priority = 999999;
-				rq_process = 0;
-				pq_process = 0;
-				cpu_state=0;
-
-			}
-
-		}
-		
-	}
-
-
-	sort( input.begin(), input.end(), idsort );
-	
-	for(int i=0;i<n;i++)
-	{
-		for(int k=total_exection_time;k>=0;k--)
-		{
-			if(Ghant[k]==i+1)
-			{
-				input[i].F_time=k+1;
-				break;
-
-			}
-		}
-	}
-	for(int i=0;i<n;i++)
-	{
-		for(int k=0;k<total_exection_time;k++)
-		{
-
-			if(Ghant[k]==i+1)
-			{
-				input[i].S_time=k;
-				break;
-			}
-		}
-	}
-	
-	sort( input.begin(), input.end(), Numsort );
-
-	for(int i=0;i<n;i++)
-	{
-		input[i].Res_time=input[i].S_time-input[i].A_time;
-		input[i].W_time=(input[i].F_time-input[i].A_time)-input[i].B_time;
-
-	}
-	
-	for(int i=0;i<n;i++)
-	{
-		cout<<input[i].Pid<<" "<<input[i].Res_time<<" "<<input[i].F_time<<" "<<input[i].W_time<<endl;
-		
-	}	
-	return 0;
+}
+A_W_T/=n;
+A_TAT/=n;
+printf("\n Avg Waiting Time = %d ",A_W_T);
+printf("\n Avg Turn Around Time = %d",A_TAT);
+getch();
 }
